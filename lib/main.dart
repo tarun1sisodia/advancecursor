@@ -1,7 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:smart_attendance/blocs/onboarding/bloc/onboarding_bloc.dart';
+import 'package:smart_attendance/features/auth/bloc/auth_bloc.dart';
 import 'package:smart_attendance/features/auth/screens/login_screen.dart';
 import 'package:smart_attendance/features/home/student_dashboard_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -10,27 +13,23 @@ import 'package:smart_attendance/config/theme.dart' as app_theme;
 import 'package:smart_attendance/app/routes.dart' as app_routes;
 
 void main() async {
-  await dotenv.load(fileName: ".env");
-
-  // Print the loaded environment variables
-  /*print('FIREBASE_API_KEY_WEB: ${dotenv.env['FIREBASE_API_KEY_WEB']}');
-  print('FIREBASE_APP_ID_WEB: ${dotenv.env['FIREBASE_APP_ID_WEB']}');
-  print(
-      'FIREBASE_MEASUREMENT_ID_WEB: ${dotenv.env['FIREBASE_MEASUREMENT_ID_WEB']}');
-  print('FIREBASE_PROJECT_ID: ${dotenv.env['FIREBASE_PROJECT_ID']}');
-  print('FIREBASE_AUTH_DOMAIN: ${dotenv.env['FIREBASE_AUTH_DOMAIN']}');
-  print('FIREBASE_STORAGE_BUCKET: ${dotenv.env['FIREBASE_STORAGE_BUCKET']}');
-  print('FIREBASE_API_KEY_IOS: ${dotenv.env['FIREBASE_API_KEY_IOS']}');
-  print('FIREBASE_APP_ID_IOS: ${dotenv.env['FIREBASE_APP_ID_IOS']}');
-  print('FIREBASE_IOS_BUNDLE_ID: ${dotenv.env['FIREBASE_IOS_BUNDLE_ID']}');
-  print('FIREBASE_API_KEY_ANDROID: ${dotenv.env['FIREBASE_API_KEY_ANDROID']}');
-  print('FIREBASE_APP_ID_ANDROID: ${dotenv.env['FIREBASE_APP_ID_ANDROID']}');
-  print(
-      'FIREBASE_MESSAGING_SENDER_ID: ${dotenv.env['FIREBASE_MESSAGING_SENDER_ID']}');*/
-
+  //we are loading the .env file here because we are using it in the firebase_options.dart file
+  try {
+    await dotenv.load(fileName: "assets/.env");
+  } catch (e) {
+    debugPrint("No .env File found!!");
+  }
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const MyApp());
+  runApp(
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => AuthBloc()),
+        BlocProvider(create: (context) => OnboardingBloc()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

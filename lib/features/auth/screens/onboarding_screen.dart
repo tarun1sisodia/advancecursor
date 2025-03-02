@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:smart_attendance/blocs/onboarding/bloc/onboarding_bloc.dart';
 import '../../../app/routes.dart';
-import '../../../blocs/onboarding_bloc.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -14,8 +13,71 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
-  int _currentPage = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    context.read<OnboardingBloc>().add(OnboardingStarted());
+  }
+
+  void _nextPage() {
+    if (_pageController.page! < _pages.length - 1) {
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    } else {
+      context.read<OnboardingBloc>().add(OnboardingCompleted());
+    }
+  }
+
+  void _skip() {
+    context.read<OnboardingBloc>().add(OnboardingSkipped());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<OnboardingBloc, OnboardingState>(
+      listener: (context, state) {
+        if (state is OnboardingComplete) {
+          Navigator.pushReplacementNamed(context, Routes.login);
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          body: SafeArea(
+            child: Column(
+              children: [
+                Align(
+                  alignment: Alignment.topRight,
+                  child: TextButton(
+                    onPressed: _skip,
+                    child: const Text('Skip'),
+                  ),
+                ),
+                Expanded(
+                  child: PageView.builder(
+                    controller: _pageController,
+                    onPageChanged: (index) {
+                      context.read<OnboardingBloc>().add(
+                            OnboardingPageChanged(pageIndex: index),
+                          );
+                    },
+                    itemCount: _pages.length,
+                    itemBuilder: (context, index) => _buildPage(_pages[index]),
+                  ),
+                ),
+                if (state is OnboardingInProgress) ...[
+                  _buildPageIndicator(state.currentPage),
+                  _buildNavigationButton(state.isLastPage),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
   // Define Lottie animation URLs for each page
   final List<String> _animations = [
     'https://assets5.lottiefiles.com/packages/lf20_jcikwtux.json', // Education animation
@@ -57,139 +119,83 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     super.dispose();
   }
 
-  void _onPageChanged(int page) {
-    setState(() {
-      _currentPage = page;
-    });
-  }
-
-  void _completeOnboarding() async {
-    print("Onboarding completed, navigating to login."); // Debugging statement
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('hasSeenOnboarding', true);
-    Navigator.pushReplacementNamed(context, Routes.login);
-  }
-
-  void _nextPage() {
-    if (_currentPage < _pages.length - 1) {
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    } else {
-      _completeOnboarding(); // Call to complete onboarding
-    }
-  }
-
-  void _skip() {
-    print("Skipping onboarding."); // Debugging statement
-    _completeOnboarding(); // Call to complete onboarding
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => OnboardingBloc(),
-      child: Scaffold(
-        body: SafeArea(
+  Widget _buildPage(OnboardingPage page) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Lottie.network(
+          _animations[_pages.indexOf(page)],
+          height: 200,
+          width: 200,
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) {
+            return Icon(
+              page.icon,
+              size: 100,
+              color: Theme.of(context).colorScheme.primary,
+            );
+          },
+        ),
+        Padding(
+          padding: const EdgeInsets.all(24.0),
           child: Column(
             children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: TextButton(
-                  onPressed: _skip,
-                  child: const Text('Skip'),
-                ),
+              Text(
+                page.title,
+                style: Theme.of(context).textTheme.headlineMedium,
+                textAlign: TextAlign.center,
               ),
-              Expanded(
-                child: PageView.builder(
-                  controller: _pageController,
-                  onPageChanged: _onPageChanged,
-                  itemCount: _pages.length,
-                  itemBuilder: (context, index) => Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Lottie.network(
-                        _animations[index],
-                        height: 200,
-                        width: 200,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Icon(
-                            _pages[index].icon,
-                            size: 100,
-                            color: Theme.of(context).colorScheme.primary,
-                          );
-                        },
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: Column(
-                          children: [
-                            Text(
-                              _pages[index].title,
-                              style: Theme.of(context).textTheme.headlineMedium,
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              _pages[index].description,
-                              style: Theme.of(context).textTheme.bodyLarge,
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(24.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: List.generate(
-                        _pages.length,
-                        (index) => Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: _currentPage == index
-                                ? Theme.of(context).colorScheme.primary
-                                : Theme.of(context)
-                                    .colorScheme
-                                    .primary
-                                    .withOpacity(0.2),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 100,
-                      child: ElevatedButton(
-                        onPressed: _nextPage,
-                        child: Text(
-                          _currentPage == _pages.length - 1
-                              ? 'Get Started'
-                              : 'Next',
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              const SizedBox(height: 16),
+              Text(
+                page.description,
+                style: Theme.of(context).textTheme.bodyLarge,
+                textAlign: TextAlign.center,
               ),
             ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPageIndicator(int currentPage) {
+    return Container(
+      padding: const EdgeInsets.all(24.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(
+          _pages.length,
+          (index) => Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: currentPage == index
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.primary.withOpacity(0.2),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavigationButton(bool isLastPage) {
+    return Container(
+      padding: const EdgeInsets.all(24.0),
+      child: SizedBox(
+        width: 100,
+        child: ElevatedButton(
+          onPressed: _nextPage,
+          child: Text(
+            isLastPage ? 'Get Started' : 'Next',
           ),
         ),
       ),
     );
   }
 }
-
 class OnboardingPage extends StatelessWidget {
   final IconData icon;
   final String title;

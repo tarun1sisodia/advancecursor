@@ -21,40 +21,14 @@ class AppTheme {
         secondary: Apppallete.secondaryColor,
         error: Apppallete.error,
       ),
-      appBarTheme: AppBarTheme(
-        elevation: 0,
-        centerTitle: true,
-        backgroundColor: Apppallete.primaryColorLight,
-        foregroundColor: Apppallete.textPrimaryLight,
-      ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
+          foregroundColor: Colors.white, // Text color
           minimumSize: const Size(double.infinity, buttonHeight),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius),
           ),
           backgroundColor: Apppallete.primaryColorLight,
-        ),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(borderRadius),
-        ),
-        filled: true,
-        fillColor: Apppallete.lightGrey,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: spacing,
-          vertical: spacing / 2,
-        ),
-      ),
-      textTheme: TextTheme(
-        // bodyText1: TextStyle(color: Apppallete.textPrimaryLight),
-        // bodyText2: TextStyle(color: Apppallete.textSecondaryLight),
-      ),
-      cardTheme: CardTheme(
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),
     );
@@ -69,14 +43,9 @@ class AppTheme {
         secondary: Apppallete.secondaryColor,
         error: Apppallete.error,
       ),
-      appBarTheme: AppBarTheme(
-        elevation: 0,
-        centerTitle: true,
-        backgroundColor: Apppallete.darkGrey,
-        foregroundColor: Apppallete.textPrimaryDark,
-      ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
+          foregroundColor: Colors.white, // Text color
           minimumSize: const Size(double.infinity, buttonHeight),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius),
@@ -84,27 +53,5 @@ class AppTheme {
           backgroundColor: Apppallete.primaryColorDark,
         ),
       ),
-      inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(borderRadius),
-        ),
-        filled: true,
-        fillColor: Apppallete.darkGrey,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: spacing,
-          vertical: spacing / 2,
-        ),
-      ),
-      textTheme: TextTheme(
-        // bodyText1: TextStyle(color: Apppallete.textPrimaryDark),
-        // bodyText2: TextStyle(color: Apppallete.textSecondaryDark),
-      ),
-      cardTheme: CardTheme(
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(borderRadius),
-        ),
-      ),
     );
-  }
-}
+  }}

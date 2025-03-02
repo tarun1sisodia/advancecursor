@@ -61,7 +61,7 @@ void showPasswordResetSuccess(BuildContext context) {
   showTopSnackBar(
     Overlay.of(context),
     CustomSnackbarContent(
-      message: 'Password reset email sent!',
+      message: 'Password reset email sent successfully!',
       backgroundColor: Colors.green,
       icon: Icons.check_circle,
     ),

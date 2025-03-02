@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:smart_attendance/features/attendance/screens/attendance_screen.dart';
 import 'package:smart_attendance/features/auth/screens/login_screen.dart';
 import 'package:smart_attendance/features/auth/screens/password_reset_screen.dart';
 import 'package:smart_attendance/features/auth/screens/onboarding_screen.dart';
@@ -24,16 +23,16 @@ class Routes {
   static const String about = '/about';
   static const String sentryTest = '/sentry-test';
   static const String attendance = '/attendance';
-  static const String phoneNumberAndOtp = '/phone-number-and-otp';
+  static const String phoneNumberAndOtp = '/phone-verification';
 
   static Map<String, WidgetBuilder> get routes {
     return {
-      splash: (context) => const SplashScreen(),
-      onboarding: (context) => const OnboardingScreen(),
-      login: (context) => const LoginScreen(),
-      register: (context) => const RegisterScreen(),
-      studentDashboard: (context) => const StudentDashboardScreen(),
-      phoneNumberAndOtp: (context) {
+      Routes.splash: (context) => const SplashScreen(),
+      Routes.onboarding: (context) => const OnboardingScreen(),
+      Routes.login: (context) => const LoginScreen(),
+      Routes.register: (context) => const RegisterScreen(),
+      Routes.studentDashboard: (context) => const StudentDashboardScreen(),
+      Routes.phoneNumberAndOtp: (context) {
         final args =
             ModalRoute.of(context)!.settings.arguments as VerificationArguments;
         return PhoneNumberAndOtpScreen(
@@ -42,8 +41,6 @@ class Routes {
           username: args.username,
         );
       },
-      // attendance: (context) => AttendanceScreen(),
-      studentProfile: (context) => StudentProfileScreen(),
     };
   }
 
@@ -55,30 +52,23 @@ class Routes {
         return MaterialPageRoute(builder: (_) => const OnboardingScreen());
       case '/login':
         return MaterialPageRoute(builder: (_) => const LoginScreen());
-      case '/phone-number-and-otp':
-        final args = settings.arguments as VerificationArguments;
+      case Routes.phoneNumberAndOtp:
+        final args = settings.arguments as Map<String, String>;
         return MaterialPageRoute(
           builder: (_) => PhoneNumberAndOtpScreen(
-            email: args.email,
-            password: args.password,
-            username: args.username,
+            email: args['email']!,
+            password: args['password']!,
+            username: args['username']!,
           ),
         );
       case '/register':
         return MaterialPageRoute(builder: (_) => const RegisterScreen());
       case '/forgot-password':
         return MaterialPageRoute(builder: (_) => const ForgotPasswordScreen());
-
       case '/student-profile':
         return MaterialPageRoute(builder: (_) => StudentProfileScreen());
       case '/settings':
         return MaterialPageRoute(builder: (_) => const SettingsScreen());
-      // case '/sync-status':
-      //   return MaterialPageRoute(builder: (_) => const SyncStatusScreen());
-      // case '/about':
-      //   return MaterialPageRoute(builder: (_) => const AboutScreen());
-      // case '/sentry-test':
-      //   return MaterialPageRoute(builder: (_) => const SentryTestScreen());
       case '/student-dashboard':
         return MaterialPageRoute(
             builder: (_) => const StudentDashboardScreen());

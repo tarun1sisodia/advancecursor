@@ -168,12 +168,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                       ),
                     ),
-                    ElevatedButton(
-                      onPressed: _nextPage,
-                      child: Text(
-                        _currentPage == _pages.length - 1
-                            ? 'Get Started'
-                            : 'Next',
+                    SizedBox(
+                      width: 100,
+                      child: ElevatedButton(
+                        onPressed: _nextPage,
+                        child: Text(
+                          _currentPage == _pages.length - 1
+                              ? 'Get Started'
+                              : 'Next',
+                        ),
                       ),
                     ),
                   ],

@@ -1,4 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 class Environment {
   static const String dev = 'dev';
@@ -63,5 +64,25 @@ class AppConfig {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_onboardingKey) ??
         false; // Default to false if not set
+  }
+
+  static Future<void> clearOnboardingState() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_onboardingKey);
+  }
+
+  static String generateUUID() {
+    return Uuid().v4(); // Generate a new UUID
+  }
+
+  static Future<String> getDeviceUUID() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('deviceUUID') ??
+        generateUUID(); // Return existing or new UUID
+  }
+
+  static Future<void> storeUserUUID(String uuid) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userUUID', uuid); // Store the user UUID
   }
 }

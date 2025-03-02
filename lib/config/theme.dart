@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:smart_attendance/config/app_pallete.dart';
 
 class AppTheme {
   static const Color primaryColor = Color(0xFF2196F3);
@@ -15,16 +16,16 @@ class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
-      colorScheme: const ColorScheme.light(
-        primary: primaryColor,
-        secondary: secondaryColor,
-        error: errorColor,
+      colorScheme: ColorScheme.light(
+        primary: Apppallete.primaryColorLight,
+        secondary: Apppallete.secondaryColor,
+        error: Apppallete.error,
       ),
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         elevation: 0,
         centerTitle: true,
-        backgroundColor: primaryColor,
-        foregroundColor: Colors.white,
+        backgroundColor: Apppallete.primaryColorLight,
+        foregroundColor: Apppallete.textPrimaryLight,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -32,6 +33,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius),
           ),
+          backgroundColor: Apppallete.primaryColorLight,
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -39,10 +41,15 @@ class AppTheme {
           borderRadius: BorderRadius.circular(borderRadius),
         ),
         filled: true,
+        fillColor: Apppallete.lightGrey,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: spacing,
           vertical: spacing / 2,
         ),
+      ),
+      textTheme: TextTheme(
+        // bodyText1: TextStyle(color: Apppallete.textPrimaryLight),
+        // bodyText2: TextStyle(color: Apppallete.textSecondaryLight),
       ),
       cardTheme: CardTheme(
         elevation: 2,
@@ -57,15 +64,16 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      colorScheme: const ColorScheme.dark(
-        primary: primaryColor,
-        secondary: secondaryColor,
-        error: errorColor,
+      colorScheme: ColorScheme.dark(
+        primary: Apppallete.primaryColorDark,
+        secondary: Apppallete.secondaryColor,
+        error: Apppallete.error,
       ),
       appBarTheme: AppBarTheme(
         elevation: 0,
         centerTitle: true,
-        backgroundColor: Colors.grey[900],
+        backgroundColor: Apppallete.darkGrey,
+        foregroundColor: Apppallete.textPrimaryDark,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -73,6 +81,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius),
           ),
+          backgroundColor: Apppallete.primaryColorDark,
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -80,10 +89,15 @@ class AppTheme {
           borderRadius: BorderRadius.circular(borderRadius),
         ),
         filled: true,
+        fillColor: Apppallete.darkGrey,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: spacing,
           vertical: spacing / 2,
         ),
+      ),
+      textTheme: TextTheme(
+        // bodyText1: TextStyle(color: Apppallete.textPrimaryDark),
+        // bodyText2: TextStyle(color: Apppallete.textSecondaryDark),
       ),
       cardTheme: CardTheme(
         elevation: 2,

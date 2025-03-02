@@ -59,6 +59,7 @@ dependencies:
   firebase_auth: ^4.15.3
   cloud_firestore: ^4.13.6
   google_sign_in: ^5.4.0
+  firebase_messaging: ^14.1.0
 
   # Location Services
   geolocator: ^10.1.0
@@ -68,7 +69,8 @@ dependencies:
   cached_network_image: ^3.3.0
   flutter_svg: ^2.0.9
   shimmer: ^3.0.0
-  
+  top_snackbar_flutter: ^3.2.0
+
   # Utils
   intl: ^0.18.1
   logger: ^2.0.2+1
@@ -107,9 +109,13 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - assets/errors/
     - assets/images/
     - assets/icons/
     - assets/config/
+    - assets/fonts/
+    - assets/.env
+    - assets/animations/google_login.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

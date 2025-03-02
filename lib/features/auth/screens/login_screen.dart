@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lottie/lottie.dart';
-import '../../../core/utils/validators.dart';
-import '../../../core/widgets/custom_text_form_field.dart';
-import '../../../services/auth_service.dart';
-import '../../../app/routes.dart';
-import '../../../blocs/login_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:smart_attendance/app/routes.dart';
+import 'package:smart_attendance/config/app_config.dart';
+import 'package:smart_attendance/config/app_pallete.dart';
+import 'package:smart_attendance/core/utils/validators.dart';
+import 'package:smart_attendance/core/widgets/custom_text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
+import 'package:smart_attendance/core/widgets/custom_snackbar.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -20,14 +19,14 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-
   bool _obscurePassword = true;
-  bool _isLoading = false;
   double _opacity = 0.0;
+  bool _isLoading = false;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
+
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -38,182 +37,6 @@ class _LoginScreenState extends State<LoginScreen> {
         _opacity = 1.0;
       });
     });
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => LoginBloc(AuthService()),
-      child: Scaffold(
-        body: SafeArea(
-          child: AnimatedOpacity(
-            opacity: _opacity,
-            duration: const Duration(milliseconds: 500),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 32),
-                    Text(
-                      'Welcome Back',
-                      style:
-                          Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).primaryColor,
-                              ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Sign in to continue',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: Colors.grey,
-                          ),
-                    ),
-                    const SizedBox(height: 32),
-                    CustomTextFormField(
-                      controller: _emailController,
-                      label: 'Email',
-                      validator: Validators.validateEmail,
-                      keyboardType: TextInputType.emailAddress,
-                      prefix: const Icon(Icons.email_outlined),
-                    ),
-                    const SizedBox(height: 16),
-                    CustomTextFormField(
-                      controller: _passwordController,
-                      label: 'Password',
-                      validator: Validators.validatePassword,
-                      obscureText: _obscurePassword,
-                      onToggleVisibility: () {
-                        setState(() => _obscurePassword = !_obscurePassword);
-                      },
-                      prefix: const Icon(Icons.lock_outlined),
-                    ),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, Routes.forgotPassword);
-                        },
-                        child: const Text('Forgot Password?'),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    BlocConsumer<LoginBloc, LoginState>(
-                      listener: (context, state) async {
-                        if (state is LoginSuccess) {
-                          final prefs = await SharedPreferences.getInstance();
-                          await prefs.setBool('isLoggedIn', true);
-                          Navigator.pushReplacementNamed(
-                              context, Routes.studentDashboard);
-                        } else if (state is LoginFailure) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text(state.error),
-                                backgroundColor: Colors.red),
-                          );
-                        }
-                      },
-                      builder: (context, state) {
-                        if (state is LoginLoading) {
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        }
-                        return SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              if (_formKey.currentState!.validate()) {
-                                context.read<LoginBloc>().add(
-                                      LoginWithEmailAndPassword(
-                                        _emailController.text.trim(),
-                                        _passwordController.text,
-                                      ),
-                                    );
-                              }
-                            },
-                            child: const Text('Login'),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 24),
-                    const Row(
-                      children: [
-                        Expanded(child: Divider()),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16),
-                          child: Text('OR'),
-                        ),
-                        Expanded(child: Divider()),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 200,
-                      child: Lottie.network(
-                        "https://lottie.host/81aa7827-1538-435e-9ed4-3a1dbedb1042/7mFMYAtB4y.lottie",
-                        fit: BoxFit.fill,
-                        onLoaded: (composition) {
-                          // Optionally handle the loaded composition
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: _handleGoogleSignIn,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: Lottie.network(
-                                "https://lottie.host/b4874990-b0f1-4638-958f-0ddde8192825/89234oDu2a.lottie", // Google logo animation URL
-                                fit: BoxFit.fill,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            const Text('Sign in with Google'),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text("Don't have an account?"),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context, Routes.register);
-                          },
-                          child: const Text('Register'),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
   }
 
   Future<void> _handleGoogleSignIn() async {
@@ -228,13 +51,223 @@ class _LoginScreenState extends State<LoginScreen> {
           idToken: googleAuth.idToken,
         );
 
-        await _auth.signInWithCredential(credential);
-        Navigator.pushReplacementNamed(context, Routes.studentDashboard);
+        UserCredential userCredential = await _auth.signInWithCredential(
+          credential,
+        );
+
+        // Show success message
+        showLoginSuccess(context);
+
+        // Navigate to the main app screen
+        Navigator.pushReplacementNamed(context, Routes.home);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Google Sign-In failed: ${e.toString()}')),
-      );
+      showLoginFailure(context); // Use the updated snackbar function
     }
+  }
+
+  void _handleLogin() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Attempt to sign in with email and password
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      // Show success message
+      showLoginSuccess(context);
+
+      // Navigate to the main app screen
+      Navigator.pushReplacementNamed(context, Routes.home);
+    } on FirebaseAuthException catch (e) {
+      // Handle specific error codes
+      if (e.code == 'invalid-credential') {
+        showLoginFailure(context); // Use the updated snackbar function
+      } else if (e.message ==
+          'The supplied auth credential is incorrect, malformed or has expired.') {
+        showLoginFailure(context); // Use the updated snackbar function
+      } else {
+        // Handle other errors
+        showLoginFailure(context); // Use the updated snackbar function
+      }
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: AnimatedOpacity(
+        opacity: _opacity,
+        duration: const Duration(milliseconds: 500),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Login',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.lightBlue,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Join our community and Experience a seamless tracking your relationship',
+                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+                const SizedBox(height: 32),
+                CustomTextFormField(
+                  controller: _emailController,
+                  label: 'Email',
+                  validator: Validators.validateEmail,
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 16),
+                CustomTextFormField(
+                  controller: _passwordController,
+                  label: 'Password',
+                  validator: Validators.validatePassword,
+                  obscureText: _obscurePassword,
+                  onToggleVisibility: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, Routes.forgotPassword);
+                    },
+                    child: const Text(
+                      'Forgot Password?',
+                      style: TextStyle(color: Apppallete.lightGrey),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Container(
+                  width: double.infinity,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Colors.blue, Colors.purple, Colors.yellowAccent],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ElevatedButton(
+                    onPressed: _isLoading
+                        ? null
+                        : () {
+                            if (_formKey.currentState?.validate() ?? false) {
+                              _handleLogin();
+                            }
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: _isLoading
+                        ? const CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          )
+                        : const Text(
+                            'Login',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                const Row(
+                  children: [
+                    Expanded(child: Divider(color: Colors.grey)),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: Text('OR', style: TextStyle(color: Colors.grey)),
+                    ),
+                    Expanded(child: Divider(color: Colors.grey)),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: OutlinedButton.icon(
+                    onPressed: _handleGoogleSignIn,
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      side: const BorderSide(color: Colors.yellow),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    icon: const Icon(Icons.g_mobiledata, color: Colors.grey),
+                    label: const Text(
+                      'Login with Google',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "Haven't registered yet?",
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, Routes.register);
+                      },
+                      child: const Text(
+                        'Register',
+                        style: TextStyle(color: Apppallete.lightGrey),
+                      ),
+                    ),
+                  ],
+                ),
+                // Debug button for testing onboarding
+                if (const bool.fromEnvironment('dart.vm.product') == false)
+                  TextButton(
+                    onPressed: () async {
+                      await AppConfig.clearOnboardingState();
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        Routes.splash,
+                        (route) => false,
+                      );
+                    },
+                    child: const Text(
+                      'Reset Onboarding (Debug)',
+                      style: TextStyle(color: Apppallete.lightGrey),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

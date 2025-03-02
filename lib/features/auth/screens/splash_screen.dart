@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:smart_attendance/app/routes.dart';
-import 'package:smart_attendance/config/app_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {

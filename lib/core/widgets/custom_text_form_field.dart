@@ -1,102 +1,86 @@
 import 'package:flutter/material.dart';
+import 'package:smart_attendance/config/app_pallete.dart';
 
-class CustomTextFormField extends StatelessWidget {
+class CustomTextFormField extends StatefulWidget {
   final TextEditingController controller;
   final String label;
   final String? Function(String?)? validator;
   final bool obscureText;
+  final TextInputType keyboardType;
+  final bool enabled;
+  // final String hintText;
+  /// This is used to toggle the visibility of the password
   final VoidCallback? onToggleVisibility;
-  final TextInputType? keyboardType;
-  final String? hintText;
-  final Widget? prefix;
-  final Widget? suffix;
-  final int? maxLines;
-  final int? minLines;
-  final bool readOnly;
-  final VoidCallback? onTap;
-  final Function(String)? onChanged;
-  final EdgeInsetsGeometry? contentPadding;
-
   const CustomTextFormField({
-    Key? key,
+    super.key,
     required this.controller,
     required this.label,
     this.validator,
     this.obscureText = false,
+    this.keyboardType = TextInputType.text,
+    this.enabled = true,
     this.onToggleVisibility,
-    this.keyboardType,
-    this.hintText,
-    this.prefix,
-    this.suffix,
-    this.maxLines = 1,
-    this.minLines,
-    this.readOnly = false,
-    this.onTap,
-    this.onChanged,
-    this.contentPadding,
-  }) : super(key: key);
+  });
 
   @override
+  State<CustomTextFormField> createState() => _CustomTextFormFieldState();
+}
+
+class _CustomTextFormFieldState extends State<CustomTextFormField> {
+  // bool _obscurePassword = true;
+  @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: Colors.grey,
-          ),
+    return TextFormField(
+      controller: widget.controller,
+      validator: widget.validator,
+      obscureText: widget.obscureText,
+      keyboardType: widget.keyboardType,
+
+      decoration: InputDecoration(
+        labelText: widget.label,
+        labelStyle: TextStyle(color: Apppallete.primaryColorLight),
+        filled: true,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
         ),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: controller,
-          validator: validator,
-          obscureText: obscureText,
-          keyboardType: keyboardType,
-          maxLines: maxLines,
-          minLines: minLines,
-          readOnly: readOnly,
-          onTap: onTap,
-          onChanged: onChanged,
-          decoration: InputDecoration(
-            hintText: hintText,
-            prefixIcon: prefix,
-            suffixIcon: obscureText && onToggleVisibility != null
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.lightBlue),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.red),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.yellow),
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
+        suffixIcon:
+            widget.onToggleVisibility != null
                 ? IconButton(
-                    icon: Icon(
-                      obscureText ? Icons.visibility : Icons.visibility_off,
-                      color: Colors.grey,
-                    ),
-                    onPressed: onToggleVisibility,
-                  )
-                : suffix,
-            contentPadding: contentPadding ??
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.grey),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.grey),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Theme.of(context).primaryColor),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.red),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.red),
-            ),
-          ),
-        ),
-      ],
+                  icon: Icon(
+                    widget.obscureText
+                        ? Icons.visibility_off
+                        : Icons.visibility,
+                    color: Colors.grey,
+                  ),
+                  onPressed: widget.onToggleVisibility,
+                )
+                : null,
+      ),
     );
   }
 }

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:smart_attendance/features/auth/screens/login_screen.dart';
+import 'package:smart_attendance/features/auth/screens/password_reset_screen.dart';
 import 'package:smart_attendance/features/auth/screens/onboarding_screen.dart';
+import 'package:smart_attendance/features/auth/screens/registration_screen.dart';
 import 'package:smart_attendance/features/auth/screens/student_dashboard_screen.dart';
+import 'package:smart_attendance/features/settings/settings_screen.dart';
+import 'package:smart_attendance/features/home/home_screen.dart';
 
 class Routes {
   static const String splash = '/';
@@ -16,13 +20,18 @@ class Routes {
   static const String syncStatus = '/sync-status';
   static const String about = '/about';
   static const String sentryTest = '/sentry-test';
+  static const String attendance = '/attendance';
+  static const String home = '/home';
 
   static Map<String, WidgetBuilder> get routes {
     return {
       splash: (context) => const SplashScreen(),
-      login: (context) => const LoginScreen(),
       onboarding: (context) => const OnboardingScreen(),
+      login: (context) => const LoginScreen(),
+      register: (context) => const RegisterScreen(),
       studentDashboard: (context) => const StudentDashboardScreen(),
+      attendance: (context) => const AttendanceScreen(),
+      home: (context) => const HomeScreen(),
     };
   }
 
@@ -30,6 +39,8 @@ class Routes {
     switch (settings.name) {
       case '/':
         return MaterialPageRoute(builder: (_) => SplashScreen());
+      case '/onboarding':
+        return MaterialPageRoute(builder: (_) => const OnboardingScreen());
       case '/login':
         return MaterialPageRoute(builder: (_) => const LoginScreen());
       case '/register':
@@ -57,8 +68,6 @@ class Routes {
       //           username: args.username,
       //         ),
       //   );
-      case '/onboarding':
-        return MaterialPageRoute(builder: (_) => const OnboardingScreen());
       case '/profile':
         return MaterialPageRoute(builder: (_) => const ProfileScreen());
       case '/settings':
@@ -69,6 +78,8 @@ class Routes {
       //   return MaterialPageRoute(builder: (_) => const AboutScreen());
       // case '/sentry-test':
       //   return MaterialPageRoute(builder: (_) => const SentryTestScreen());
+      case '/home':
+        return MaterialPageRoute(builder: (_) => const HomeScreen());
       default:
         throw Exception('Invalid route: ${settings.name}');
     }
@@ -83,10 +94,14 @@ class Routes {
       MaterialPageRoute(
         builder: (context) {
           switch (routeName) {
+            case '/onboarding':
+              return const OnboardingScreen();
             case '/login':
               return const LoginScreen();
             case '/register':
               return const RegisterScreen();
+            case '/home':
+              return const HomeScreen();
             // case '/add-phone-number':
             //   final email = arguments as String;
             //   final password = arguments;
@@ -109,8 +124,6 @@ class Routes {
             //   );
             case '/forgot-password':
               return const ForgotPasswordScreen();
-            case '/onboarding':
-              return const OnboardingScreen();
             case '/profile':
               return const ProfileScreen();
             case '/settings':
@@ -192,20 +205,6 @@ class SplashScreen extends StatelessWidget {
   }
 }
 
-class RegisterScreen extends StatelessWidget {
-  const RegisterScreen({super.key});
-  @override
-  Widget build(BuildContext context) =>
-      const Scaffold(body: Center(child: Text('Register Screen')));
-}
-
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-  @override
-  Widget build(BuildContext context) =>
-      const Scaffold(body: Center(child: Text('Home Screen')));
-}
-
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
   @override
@@ -218,18 +217,4 @@ class AttendanceScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) =>
       const Scaffold(body: Center(child: Text('Attendance Screen')));
-}
-
-class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
-  @override
-  Widget build(BuildContext context) =>
-      const Scaffold(body: Center(child: Text('Settings Screen')));
-}
-
-class ForgotPasswordScreen extends StatelessWidget {
-  const ForgotPasswordScreen({super.key});
-  @override
-  Widget build(BuildContext context) =>
-      const Scaffold(body: Center(child: Text('Forgot Password Screen')));
 }

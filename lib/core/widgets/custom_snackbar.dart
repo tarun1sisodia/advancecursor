@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:smart_attendance/core/widgets/custom_snackbar_content.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
-
 void showCustomSnackbar(BuildContext context, String message) {
   showTopSnackBar(
     Overlay.of(context),

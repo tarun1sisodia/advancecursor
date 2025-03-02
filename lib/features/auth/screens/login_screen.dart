@@ -6,8 +6,9 @@ import 'package:smart_attendance/core/utils/validators.dart';
 import 'package:smart_attendance/core/widgets/custom_text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import 'package:smart_attendance/core/widgets/custom_snackbar.dart';
+import 'package:provider/provider.dart';
+import 'package:smart_attendance/features/auth/bloc/auth_bloc.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,28 +18,32 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  // Controllers for form input fields
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _obscurePassword = true;
-  double _opacity = 0.0;
-  bool _isLoading = false;
-
+  
+  // UI state variables
+  bool _obscurePassword = true;  // Toggle password visibility
+  double _opacity = 0.0;         // For fade-in animation
+  bool _isLoading = false;       // Loading state for login button
+  
+  // Firebase authentication instances
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
-
+  
+  // Form key for validation
   final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
-    // Fade in effect
+    // Initialize fade-in animation
     Future.delayed(const Duration(milliseconds: 100), () {
-      setState(() {
-        _opacity = 1.0;
-      });
+      setState(() => _opacity = 1.0);
     });
   }
 
+  // Handle Google Sign-In authentication flow
   Future<void> _handleGoogleSignIn() async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
@@ -51,21 +56,20 @@ class _LoginScreenState extends State<LoginScreen> {
           idToken: googleAuth.idToken,
         );
 
-        UserCredential userCredential = await _auth.signInWithCredential(
-          credential,
-        );
+        await _auth.signInWithCredential(credential);
 
         // Show success message
         showLoginSuccess(context);
 
         // Navigate to the main app screen
-        Navigator.pushReplacementNamed(context, Routes.home);
+        Navigator.pushReplacementNamed(context, Routes.studentDashboard);
       }
     } catch (e) {
       showLoginFailure(context); // Use the updated snackbar function
     }
   }
 
+  // Handle Email/Password Sign-In authentication flow
   void _handleLogin() async {
     setState(() {
       _isLoading = true;
@@ -73,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       // Attempt to sign in with email and password
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+      await _auth.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
@@ -82,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
       showLoginSuccess(context);
 
       // Navigate to the main app screen
-      Navigator.pushReplacementNamed(context, Routes.home);
+      Navigator.pushReplacementNamed(context, Routes.studentDashboard);
     } on FirebaseAuthException catch (e) {
       // Handle specific error codes
       if (e.code == 'invalid-credential') {
@@ -103,6 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+      final authBloc = context.read<AuthBloc>();
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: AnimatedOpacity(

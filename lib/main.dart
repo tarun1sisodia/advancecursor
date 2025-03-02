@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:smart_attendance/features/auth/screens/login_screen.dart';
-import 'package:smart_attendance/features/auth/screens/student_dashboard_screen.dart';
+import 'package:smart_attendance/features/home/student_dashboard_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:smart_attendance/firebase_options.dart';
 import 'package:smart_attendance/config/theme.dart' as app_theme;

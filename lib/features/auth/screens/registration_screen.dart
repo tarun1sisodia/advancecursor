@@ -4,7 +4,7 @@ import 'package:smart_attendance/config/app_pallete.dart';
 import 'package:smart_attendance/core/utils/validators.dart';
 import 'package:smart_attendance/core/widgets/custom_text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:smart_attendance/config/app_config.dart';
+import 'dart:async';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -146,59 +146,57 @@ class _RegisterScreenState extends State<RegisterScreen> {
       });
 
       try {
-        // Generate and store UUIDs
-        final userUUID = AppConfig.generateUUID();
-        final deviceUUID = await AppConfig.getDeviceUUID();
-
         UserCredential userCredential =
             await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
 
-        // Store the user UUID
-        await AppConfig.storeUserUUID(userUUID);
-
-        // Add username and additional data to Firebase user profile
-        await userCredential.user?.updateDisplayName(
-          _usernameController.text.trim(),
-        );
-
-        // Show success message and navigate to home
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Registration successful! Please login.'),
-              backgroundColor: Colors.green,
-            ),
-          );
-          Navigator.pushReplacementNamed(context, Routes.home);
-        }
-      } on FirebaseAuthException catch (e) {
-        String errorMessage = 'Registration failed';
-        if (e.code == 'weak-password') {
-          errorMessage = 'The password provided is too weak';
-        } else if (e.code == 'email-already-in-use') {
-          errorMessage = 'An account already exists for this email';
-        } else if (e.code == 'invalid-email') {
-          errorMessage = 'Please enter a valid email address';
-        }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
-        );
+        // Navigate to PhoneNumberAndOtpScreen
+        Navigator.pushReplacementNamed(context, Routes.phoneNumberAndOtp,
+            arguments: VerificationArguments(
+              verificationId: '', // Replace with the actual verification ID
+              email: _emailController.text.trim(),
+              password: _passwordController.text,
+              username: _usernameController.text.trim(),
+            ));
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        // Handle errors
       } finally {
         setState(() {
           _isLoading = false;
         });
       }
     }
+  }
+
+  Future<String> sendOtpToPhoneNumber(String? phoneNumber) async {
+    if (phoneNumber == null) {
+      throw Exception('Phone number cannot be null');
+    }
+    Completer<String> completer = Completer();
+
+    await FirebaseAuth.instance.verifyPhoneNumber(
+      phoneNumber: phoneNumber,
+      verificationCompleted: (PhoneAuthCredential credential) async {
+        // Auto-retrieve or auto-sms verification code
+        completer.complete(credential.verificationId);
+      },
+      verificationFailed: (FirebaseAuthException e) {
+        // Handle error
+        completer.completeError(e);
+      },
+      codeSent: (String verificationId, int? resendToken) {
+        // Code sent successfully
+        completer.complete(verificationId);
+      },
+      codeAutoRetrievalTimeout: (String verificationId) {
+        // Auto-retrieval timeout
+        completer.complete(verificationId);
+      },
+    );
+
+    return completer.future;
   }
 
   @override

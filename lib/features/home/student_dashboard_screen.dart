@@ -1,7 +1,7 @@
 // This file is a copy of the existing student_dashboard_screen.dart
 
 import 'package:flutter/material.dart';
-import '../../settings/settings_drawer.dart'; // Correct relative path to SettingsDrawer
+import '../settings/settings_drawer.dart'; // Correct relative path to SettingsDrawer
 
 // Mock definitions for Course and Session classes
 class Course {
@@ -120,9 +120,7 @@ class StudentDashboardScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Student Dashboard'),
-      ),
+     
       drawer: const SettingsDrawer(), // Use the new SettingsDrawer
       body: RefreshIndicator(
         onRefresh: () async {

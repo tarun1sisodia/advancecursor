@@ -1,69 +1,87 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
-class Environment {
-  static const String dev = 'dev';
-  static const String prod = 'prod';
-  static const String staging = 'staging';
+enum Environment { dev, staging, prod }
 
-  static String currentEnvironment = dev;
+class AppConfig {
+  static late final Environment environment;
+  static late final String apiBaseUrl;
+  static late final String appName;
 
-  static String get apiUrl {
-    switch (currentEnvironment) {
-      case dev:
-        return 'http://localhost:8080/api';
-      case staging:
-        return 'https://staging-api.smartattendance.com/api';
-      case prod:
-        return 'https://api.smartattendance.com/api';
-      default:
-        return 'http://localhost:8080/api';
+  static void initialize(Environment env) {
+    environment = env;
+
+    switch (environment) {
+      case Environment.dev:
+        apiBaseUrl = 'http://localhost:8080/api';
+        appName = 'Smart Campus (Dev)';
+        break;
+      case Environment.staging:
+        apiBaseUrl = 'https://staging-api.smartcampus.com/api';
+        appName = 'Smart Campus (Staging)';
+        break;
+      case Environment.prod:
+        apiBaseUrl = 'https://api.smartcampus.com/api';
+        appName = 'Smart Campus';
+        break;
     }
   }
 
-  static bool get isDev => currentEnvironment == dev;
-  static bool get isStaging => currentEnvironment == staging;
-  static bool get isProd => currentEnvironment == prod;
-}
-
-class AppConfig {
-  static const String appName = 'Smart Attendance';
-  static const String appVersion = '1.0.0';
+  static bool get isDevelopment => environment == Environment.dev;
+  static bool get isStaging => environment == Environment.staging;
+  static bool get isProduction => environment == Environment.prod;
 
   // API Endpoints
-  static const String loginEndpoint = '/auth/login';
-  static const String registerEndpoint = '/auth/register';
-  static const String attendanceEndpoint = '/attendance/mark';
+  static String get loginEndpoint => '$apiBaseUrl/auth/login';
+  static String get registerEndpoint => '$apiBaseUrl/auth/register';
+  static String get refreshTokenEndpoint => '$apiBaseUrl/auth/refresh';
+  static String get logoutEndpoint => '$apiBaseUrl/auth/logout';
+  static String get createSessionEndpoint => '$apiBaseUrl/sessions/create';
+  static String get activeSessionsEndpoint => '$apiBaseUrl/sessions/active';
+  static String get markAttendanceEndpoint => '$apiBaseUrl/attendance/mark';
+  // Add JWT configuration
+  static const Duration jwtExpirationDuration = Duration(days: 7);
+  static const String jwtSecretKey = 'your_jwt_secret_key';
+  static const String tokenKey = 'auth_token';
+  static const String refreshTokenKey = 'refresh_token';
+  
+  // Firebase configuration
+  static const String firebaseWebApiKey = 'your_firebase_web_api_key';
+  static const String firebaseDynamicLinkDomain = 'your_dynamic_link_domain';
 
-  // Timeouts
-  static const int connectionTimeout = 5000; // milliseconds
-  static const int receiveTimeout = 3000; // milliseconds
+  // Feature Flags
+  static const bool enableOfflineMode = true;
+  static const bool enableBiometricAuth = true;
+  static const bool enableLocationVerification = true;
+  static const bool enableWifiVerification = true;
 
-  // Cache Configuration
-  static const int maxCacheSize = 100;
-  static const int maxCacheSizeBytes = 50 << 20; // 50 MB
+  // Timeouts and Durations
+  static const int connectionTimeout = 30000; // 30 seconds
+  static const int receiveTimeout = 30000; // 30 seconds
+  static const int defaultSessionDuration = 300; // 5 minutes
+  static const int locationUpdateInterval = 60; // 1 minute
+  static const int maxRetryAttempts = 3;
+  static const int cacheDuration = 7; // 7 days
 
   // Location Configuration
-  static const int locationTimeout = 10000; // milliseconds
-  static const double locationAccuracy = 50.0; // meters
+  static const int defaultLocationRadius = 100; // meters
+  static const double defaultLocationAccuracy = 50.0; // meters
 
-  // Session Configuration
-  static const Duration sessionTimeout = Duration(minutes: 30);
-  static const Duration tokenRefreshThreshold = Duration(minutes: 5);
+  // Debug Configuration
+  static bool get enableLogging => !isProduction;
+  static bool get enableCrashlytics => isProduction;
 
   static const String _onboardingKey = 'hasSeenOnboarding';
 
-  // Method to mark onboarding as complete
+  // Keep existing utility methods
   static Future<void> markOnboardingComplete() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_onboardingKey, true);
   }
 
-  // Method to check if onboarding has been completed
   static Future<bool> hasSeenOnboarding() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_onboardingKey) ??
-        false; // Default to false if not set
+    return prefs.getBool(_onboardingKey) ?? false;
   }
 
   static Future<void> clearOnboardingState() async {
@@ -72,17 +90,16 @@ class AppConfig {
   }
 
   static String generateUUID() {
-    return Uuid().v4(); // Generate a new UUID
+    return Uuid().v4();
   }
 
   static Future<String> getDeviceUUID() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('deviceUUID') ??
-        generateUUID(); // Return existing or new UUID
+    return prefs.getString('deviceUUID') ?? generateUUID();
   }
 
   static Future<void> storeUserUUID(String uuid) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('userUUID', uuid); // Store the user UUID
+    await prefs.setString('userUUID', uuid);
   }
 }

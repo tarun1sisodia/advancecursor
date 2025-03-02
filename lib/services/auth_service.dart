@@ -139,4 +139,8 @@ class AuthService {
         verificationId: verificationId, smsCode: smsCode);
     await _auth.signInWithCredential(credential);
   }
+
+  getToken() {}
+
+  refreshToken() {}
 }
